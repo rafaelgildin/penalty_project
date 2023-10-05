@@ -1,4 +1,6 @@
-data
+data/*
+!data/runs
+!data/yolov8n-cls.pt
 .vscode
 py3*
 ignore*
