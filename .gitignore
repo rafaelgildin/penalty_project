@@ -1,6 +1,6 @@
+data
 .vscode
 py3*
-data
 ignore*
 keys
 .env
