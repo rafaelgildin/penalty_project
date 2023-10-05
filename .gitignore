@@ -1,0 +1,9 @@
+.vscode
+py3*
+data
+ignore*
+keys
+.env
+__pycache__
+creds*
+elapsed_time*
