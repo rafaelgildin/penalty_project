@@ -1,5 +1,6 @@
 data/*
-!data/runs
+!data/dataset/runs
+!data/dataset_v0/runs
 !data/yolov8n-cls.pt
 .vscode
 py3*
