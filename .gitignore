@@ -1,7 +1,6 @@
 data/videos*
 data/images*
 data/*jpg
-data/dataset_default
 
 data/dataset/train*
 data/dataset/test*
