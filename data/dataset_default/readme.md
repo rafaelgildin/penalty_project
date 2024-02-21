@@ -1,1 +1,0 @@
-# This dataset contains the folder a dataset must have
