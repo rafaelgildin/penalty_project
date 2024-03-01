@@ -2,7 +2,6 @@ outputs
 
 data/videos*
 data/images*
-data/*jpg
 
 data/processed
 
