@@ -22,3 +22,5 @@ keys
 __pycache__
 creds*
 elapsed_time*
+
+yolov8n*
