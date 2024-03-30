@@ -5,9 +5,6 @@ import cv2 as cv
 import os, serial, time
 import keyboard # get the keys typed
 
-ser = serial.Serial('COM3', 9600, timeout=1)
-time.sleep(2) # Wait for the connection to be established
-
 def green_led_on(): ser.write(b'G')
 def green_led_off(): ser.write(b'g')
 def yellow_led_on(): ser.write(b'Y')
@@ -94,7 +91,6 @@ def webcam_inference():
         frame_time = int(cap.get(cv.CAP_PROP_POS_MSEC))
         frame_number+=1
         i+=1
-    
         classes_probs_text = f"No ({round((classes_probs['no']*100.0),2)}%) - Yes ({round((classes_probs['yes']*100.0),2)}%)" 
         text = f"Frame {frame_number}/{frame_count} - Time {round(frame_time,5)} ms - {classes_probs_text}"
         text = f"{classes_probs_text}"
@@ -113,6 +109,51 @@ def webcam_inference():
             break
     cap.release()
     cv.destroyAllWindows()
+    
+def video_inference():
+    video_path = os.path.join('data','videos','light_left_feet_left_goal_10_goals_ok','lf13.mp4')
+    frame_start,frame_end = 0,5
+    best_model_path = os.path.join('models', 'best_train_2.pt')
+    model = YOLO(best_model_path)
+    cap = cv.VideoCapture(video_path)
+    frame_number = 0
+    
+    # Get the video codec and properties from the input video 
+    fps = int(cap.get(cv.CAP_PROP_FPS))
+    width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+    frame_count = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+    total_duration = frame_count / fps 
+    print(f"Video (sec): {0}-{round(total_duration,2)}")
+    print(f"Frames: {0}-{frame_count}")
+    i = 0
+    while(True):
+    
+    # for i in range(frame_start,frame_end):
+        # cap.set(cv.CAP_PROP_POS_FRAMES, i)
+        ret, frame= cap.read()
+        if not ret: break
+        
+        r = model(frame,save=False, conf=0.5, iou=0.1,device='0',verbose=False)[0]
+
+        # format frame
+        classes_names = r.names
+        probs = r.cpu().probs.data.tolist()
+        classes_probs = {}
+        for k,v in classes_names.items(): classes_probs[v] = round(probs[k],2)
+        print("Results : ", classes_probs)
+        
+        # plot frame
+        frame_time = int(cap.get(cv.CAP_PROP_POS_MSEC))
+        frame_number+=1
+        i+=1
+        classes_probs_text = f"No ({round((classes_probs['no']*100.0),2)}%) - Yes ({round((classes_probs['yes']*100.0),2)}%)" 
+        text = f"Frame {frame_number}/{frame_count} - Time {round(frame_time,5)} ms - {classes_probs_text}"
+        text = f"{classes_probs_text}"
+        plot_frame(frame,width,height,text)
+        cv.waitKey(0)
+    cap.release()
+    cv.destroyAllWindows()
 
 def image_inference():
     # change current folder
@@ -128,18 +169,27 @@ def image_inference():
 
     # Show the results
     im_array = r.plot(conf=True)  # plot a BGR numpy array of predictions
-    im = Image.fromarray(im_array[..., ::-1])  # RGB PIL image
-    display(im)
-
+    # im = Image.fromarray(im_array[..., ::-1])  # RGB PIL image
+    # display(im)
+    cv.imshow('image',im_array)
+    cv.waitKey(0) 
+    
     # Tratando o resultado
     classes_names = r.names
     probs = r.cpu().probs.data.tolist()
     classes_probs = {}
     for k,v in classes_names.items(): classes_probs[v] = round(probs[k],2)
     print("Results : ", classes_probs)
+    cv.destroyAllWindows() 
 
-webcam_inference()
-# blink()
-# time.sleep(2)
-ser.close()
-print('end of inference')
+def arduino_inference():
+    global ser
+    ser = serial.Serial('COM3', 9600, timeout=1)
+    time.sleep(2) # Wait for the connection to be established
+    webcam_inference()
+    # blink()
+    # time.sleep(2)
+    ser.close()
+    print('end of inference')
+    
+video_inference()

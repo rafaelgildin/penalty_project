@@ -1,3 +1,9 @@
-ipykernel
-ultralytics
+torch
+torchaudio
+torchvision
+opencv-python
+opencv-contrib-python
+ipykernel 
+ultralytics==8.0.230
+supervision
 pyserial
