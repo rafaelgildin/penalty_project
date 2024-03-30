@@ -21,7 +21,18 @@ def blink():
     time.sleep(2)
     yellow_led_off()
     green_led_on()
-        
+    
+def get_cap_props(cap):
+    cap_props = {}
+    cap_props['fps'] = int(cap.get(cv.CAP_PROP_FPS))
+    cap_props['width'] = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
+    cap_props['height'] = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+    cap_props['frame_count'] = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+    cap_props['total_duration'] = cap_props['frame_count'] / cap_props['fps']
+    print(f"Video (sec): {0}-{round(cap_props['total_duration'],2)}")
+    print(f"Frames: {0}-{cap_props['frame_count']}")
+    return cap_props
+
 def plot_frame(frame,width,height,text,font_color=COLOR_BLACK):
     # Define the position and size of the rectangle
     top_left_corner = (0, 0)

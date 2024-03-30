@@ -1,21 +1,12 @@
 from utils import *
-    
-    
+
 def webcam_inference():
     best_model_path = os.path.join('models', 'best_train_2.pt')
     # base_model_path = 'yolov8n.pt'
     model = YOLO(best_model_path)
     cap = cv.VideoCapture(0)
+    cap_props = get_cap_props(cap)
     frame_number = 0
-    
-    # Get the video codec and properties from the input video 
-    fps = int(cap.get(cv.CAP_PROP_FPS))
-    width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
-    frame_count = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
-    total_duration = frame_count / fps 
-    print(f"Video (sec): {0}-{round(total_duration,2)}")
-    print(f"Frames: {0}-{frame_count}")
     i = 0
     green_led_on()
     
@@ -37,9 +28,9 @@ def webcam_inference():
         frame_number+=1
         i+=1
         classes_probs_text = f"No ({round((classes_probs['no']*100.0),2)}%) - Yes ({round((classes_probs['yes']*100.0),2)}%)" 
-        text = f"Frame {frame_number}/{frame_count} - Time {round(frame_time,5)} ms - {classes_probs_text}"
+        text = f"Frame {frame_number}/{cap_props['frame_count']} - Time {round(frame_time,5)} ms - {classes_probs_text}"
         text = f"{classes_probs_text}"
-        plot_frame(frame,width,height,text)
+        plot_frame(frame,cap_props['width'],cap_props['height'],text)
         
         # if(i >= 50): # condition based on counter
         if (classes_probs['yes'] > 0.8): # condition based on prob
@@ -61,16 +52,8 @@ def video_inference(with_arduino=False):
     best_model_path = os.path.join('models', 'best_train_2.pt')
     model = YOLO(best_model_path)
     cap = cv.VideoCapture(video_path)
-    
-    # Get the video codec and properties from the input video 
-    fps = int(cap.get(cv.CAP_PROP_FPS))
-    width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
-    frame_count = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
-    total_duration = frame_count / fps 
+    cap_props = get_cap_props(cap)
     color = COLOR_BLACK
-    print(f"Video (sec): {0}-{round(total_duration,2)}")
-    print(f"Frames: {0}-{frame_count}")
     i = 0
     # frame_number = 0
     # while(True):
@@ -94,11 +77,11 @@ def video_inference(with_arduino=False):
         # frame_number+=1
         # i+=1
         classes_probs_text = f"No ({round((classes_probs['no']*100.0),2)}%) - Yes ({round((classes_probs['yes']*100.0),2)}%)" 
-        text = f"Frame {i}/{frame_count} - Time {round(frame_time,5)} ms - {classes_probs_text}"
+        text = f"Frame {i}/{cap_props['frame_count']} - Time {round(frame_time,5)} ms - {classes_probs_text}"
         if (classes_probs['yes'] > 0.5): 
             color=COLOR_BLUE # red in practice
             if(with_arduino): green_led_on()
-        plot_frame(frame,width,height,text,color)
+        plot_frame(frame,cap_props['width'],cap_props['height'],text,color)
         cv.waitKey(0)
     cap.release()
     cv.destroyAllWindows()
