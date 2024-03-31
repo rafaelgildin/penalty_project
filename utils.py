@@ -10,18 +10,22 @@ COLOR_BLACK = (0, 0, 0)
 COLOR_RED = (255, 0, 0)
 COLOR_BLUE = (0, 0, 255)
 
-def green_led_on(): ser.write(b'G')
-def green_led_off(): ser.write(b'g')
-def yellow_led_on(): ser.write(b'Y')
-def yellow_led_off(): ser.write(b'y')
-def blink():
+def red_led_on(ser): ser.write(b'R')
+def red_led_off(ser): ser.write(b'r')
+def green_led_on(ser): ser.write(b'G')
+def green_led_off(ser): ser.write(b'g')
+def yellow_led_on(ser): ser.write(b'Y')
+def yellow_led_off(ser): ser.write(b'y')
+def blink(ser):
     print("yes detected")
-    green_led_off()
-    yellow_led_on()
+    red_led_on(ser)
+    green_led_on(ser)
+    yellow_led_on(ser)
     time.sleep(2)
-    yellow_led_off()
-    green_led_on()
-    
+    red_led_off(ser)
+    green_led_off(ser)
+    yellow_led_off(ser)
+
 def get_cap_props(cap):
     cap_props = {}
     cap_props['fps'] = int(cap.get(cv.CAP_PROP_FPS))

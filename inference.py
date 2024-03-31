@@ -54,12 +54,12 @@ def video_inference(with_arduino=False):
     cap = cv.VideoCapture(video_path)
     cap_props = get_cap_props(cap)
     color = COLOR_BLACK
-    i = 0
-    # frame_number = 0
-    # while(True):
-    
-    for i in range(frame_start,frame_end):
-        cap.set(cv.CAP_PROP_POS_FRAMES, i)
+    frame_number = -1
+
+    while(True):
+        frame_number += 1
+    # for frame_number in range(frame_start,frame_end):
+        cap.set(cv.CAP_PROP_POS_FRAMES, frame_number)
         ret, frame= cap.read()
         if not ret: break
         
@@ -74,15 +74,16 @@ def video_inference(with_arduino=False):
         
         # plot frame
         frame_time = int(cap.get(cv.CAP_PROP_POS_MSEC))
-        # frame_number+=1
-        # i+=1
         classes_probs_text = f"No ({round((classes_probs['no']*100.0),2)}%) - Yes ({round((classes_probs['yes']*100.0),2)}%)" 
-        text = f"Frame {i}/{cap_props['frame_count']} - Time {round(frame_time,5)} ms - {classes_probs_text}"
+        text = f"Frame {frame_number}/{cap_props['frame_count']} - Time {round(frame_time,5)} ms - {classes_probs_text}"
         if (classes_probs['yes'] > 0.5): 
             color=COLOR_BLUE # red in practice
-            if(with_arduino): green_led_on()
+            if(with_arduino): red_led_on(ser)
+        else:
+            color=COLOR_BLACK # red in practice
+            if(with_arduino): red_led_off(ser)
         plot_frame(frame,cap_props['width'],cap_props['height'],text,color)
-        cv.waitKey(0)
+        cv.waitKey(500)
     cap.release()
     cv.destroyAllWindows()
 
@@ -127,9 +128,9 @@ def arduino_video_inference():
     global ser
     ser = serial.Serial('COM3', 9600, timeout=1)
     time.sleep(2) # Wait for the connection to be established
-    green_led_off()
+    green_led_off(ser)
     video_inference(with_arduino=True)
     ser.close()
     print('end of inference')
     
-video_inference()
+arduino_video_inference()
