@@ -3,13 +3,15 @@ from utils import *
 def webcam_inference():
     best_model_path = os.path.join('models', 'best_train_2.pt')
     # base_model_path = 'yolov8n.pt'
+    color = COLOR_BLACK
     model = YOLO(best_model_path)
     cap = cv.VideoCapture(0)
     cap_props = get_cap_props(cap)
     frame_number = 0
     i = 0
-    green_led_on()
-    
+    green_led_on(ser)
+
+
     while True:
         ret, frame= cap.read()
         if not ret: break
@@ -30,19 +32,21 @@ def webcam_inference():
         classes_probs_text = f"No ({round((classes_probs['no']*100.0),2)}%) - Yes ({round((classes_probs['yes']*100.0),2)}%)" 
         text = f"Frame {frame_number}/{cap_props['frame_count']} - Time {round(frame_time,5)} ms - {classes_probs_text}"
         text = f"{classes_probs_text}"
-        plot_frame(frame,cap_props['width'],cap_props['height'],text)
+        plot_frame(frame,cap_props['width'],cap_props['height'],text,color)
         
-        # if(i >= 50): # condition based on counter
+        # # if(i >= 50): # condition based on counter
         if (classes_probs['yes'] > 0.8): # condition based on prob
-            i = 0
-            blink()
-            while True:
-                print("Looping... Press any key to stop.")
-                if keyboard.read_event(suppress=True).event_type == keyboard.KEY_DOWN:
-                    print("Key pressed, stopping loop.")
-                    break               
-        if cv.waitKey(1) == ord('q'):
-            break
+            color=COLOR_BLUE # red in practice
+            # i = 0
+            # blink(ser)
+            # while True:
+            #     print("Looping... Press any key to stop.")
+            #     if keyboard.read_event(suppress=True).event_type == keyboard.KEY_DOWN:
+            #         print("Key pressed, stopping loop.")
+            #         break
+        else:
+            color=COLOR_BLACK
+        if cv.waitKey(1) == ord('q'): break
     cap.release()
     cv.destroyAllWindows()
     
@@ -80,7 +84,7 @@ def video_inference(with_arduino=False):
             color=COLOR_BLUE # red in practice
             if(with_arduino): red_led_on(ser)
         else:
-            color=COLOR_BLACK # red in practice
+            color=COLOR_BLACK
             if(with_arduino): red_led_off(ser)
         plot_frame(frame,cap_props['width'],cap_props['height'],text,color)
         cv.waitKey(500)
@@ -133,4 +137,4 @@ def arduino_video_inference():
     ser.close()
     print('end of inference')
     
-arduino_video_inference()
+arduino_webcam_inference()

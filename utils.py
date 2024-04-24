@@ -33,11 +33,15 @@ def get_cap_props(cap):
     cap_props['height'] = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
     cap_props['frame_count'] = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
     cap_props['total_duration'] = cap_props['frame_count'] / cap_props['fps']
+    print(f"fps={cap_props['fps']} | width={cap_props['width']} | height={cap_props['height']}")
     print(f"Video (sec): {0}-{round(cap_props['total_duration'],2)}")
     print(f"Frames: {0}-{cap_props['frame_count']}")
     return cap_props
 
 def plot_frame(frame,width,height,text,font_color=COLOR_BLACK):
+    width,height = (1280, 960)
+    frame = cv.resize(frame, (width,height))
+    
     # Define the position and size of the rectangle
     top_left_corner = (0, 0)
     bottom_right_corner = (width, 100)
